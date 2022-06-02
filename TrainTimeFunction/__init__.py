@@ -10,9 +10,11 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
 
     arr = req.params.get("arr")
     dep = req.params.get("dep")
+    headers = {"Content-Type": "application/json"}
 
     if not arr or not dep:
-        return func.HttpResponse(json.dumps({"Error": "Bad Request: param arr or dep missing"}), status_code=400)
+        error_response = {"Error": "Bad Request: param arr or dep missing"}
+        return func.HttpResponse(json.dumps(error_response), headers=headers, status_code=400)
 
     ddmmyy = datetime.now().strftime("%d%m%y")
     hhmm = datetime.now().strftime("%H%M")
@@ -30,4 +32,4 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
                 dep_time = trip["jsonJourneyBreakdown"]["departureTime"]
                 response.append({"dep": dep, "arr": arr, "dep_time": dep_time})
 
-            return func.HttpResponse(json.dumps(response), headers={"Content-Type": "application/json"}, status_code=200)
+            return func.HttpResponse(json.dumps(response), headers=headers, status_code=200)
