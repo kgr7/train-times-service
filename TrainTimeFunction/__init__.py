@@ -1,4 +1,5 @@
 import json
+import pytz
 import aiohttp
 import logging
 from datetime import datetime
@@ -16,8 +17,13 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
         error_response = {"Error": "Bad Request: param arr or dep missing"}
         return func.HttpResponse(json.dumps(error_response), headers=headers, status_code=400)
 
-    ddmmyy = datetime.now().strftime("%d%m%y")
-    hhmm = datetime.now().strftime("%H%M")
+    utc = pytz.timezone('UTC')
+    naive_time = datetime.utcnow()
+    tz_time = utc.localize(naive_time)
+    uk_tz = pytz.timezone('Europe/London')
+    uk_time = tz_time.astimezone(uk_tz) 
+    ddmmyy = uk_time.strftime("%d%m%y")
+    hhmm = uk_time.strftime("%H%M")
 
     async with aiohttp.ClientSession() as client:
         async with client.get(f"https://ojp.nationalrail.co.uk/service/timesandfares/{dep}/{arr}/{ddmmyy}/{hhmm}/dep") as response:
